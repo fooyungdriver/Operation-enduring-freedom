@@ -2,11 +2,12 @@
   "_comment": "Copy this file to config.json and fill in your real values. config.json is git-ignored and never committed. You can also set any of these via environment variables (same name, UPPERCASE) which take priority.",
 
   "zoho": {
-    "_comment": "From your Zoho API console self-client. data_center is your Zoho domain: com (US), eu, in, com.au, jp.",
+    "_comment": "From your Zoho API console self-client. data_center is your Zoho domain: com (US), eu, in, com.au, jp. For pre-deployment testing against a Zoho CRM Sandbox, set api_host_override to the sandbox API host shown in your Zoho Developer Hub (e.g. https://sandbox.zohoapis.com/crm/v8) and use that sandbox's own refresh token. Leave api_host_override empty for production.",
     "client_id": "",
     "client_secret": "",
     "refresh_token": "",
-    "data_center": "com"
+    "data_center": "com",
+    "api_host_override": ""
   },
 
   "anthropic": {

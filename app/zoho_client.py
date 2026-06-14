@@ -56,6 +56,11 @@ class ZohoClient:
 
     @property
     def _api_base(self) -> str:
+        # An explicit override lets you point at a Zoho CRM **sandbox** (or any
+        # alternate host) for pre-deployment testing without code changes.
+        override = config.get("zoho", "api_host_override")
+        if override:
+            return str(override).rstrip("/")
         return f"https://www.zohoapis.{self._dc}/crm/v8"
 
     # --- Auth -------------------------------------------------------------

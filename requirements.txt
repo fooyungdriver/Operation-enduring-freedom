@@ -13,3 +13,6 @@ pywin32>=306; sys_platform == "win32"
 
 # Build a double-clickable Windows app (optional, for distribution):
 pyinstaller>=6.0
+
+# Testing (run `pytest` before deploying):
+pytest>=8.0

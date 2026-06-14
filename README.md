@@ -80,6 +80,20 @@ form's boxes. To line it up:
 On non-Windows machines (or with no printer name set), prints are written to
 `out/*.prn` so you can develop and verify the layout without a printer.
 
+## Testing before deployment
+
+Run the automated suite (offline — Zoho/Claude mocked, printing to file):
+
+```
+pip install -r requirements.txt
+pytest
+```
+
+See **[TESTING.md](TESTING.md)** for the full pre-deployment plan: testing print
+layout without wasting forms, using a Zoho **sandbox** (`zoho.api_host_override`)
+instead of production, exercising the Claude skills, and the single-PC dress
+rehearsal checklist before rolling out to the other machines.
+
 ## Claude skills
 
 Configured with the official Anthropic SDK and model `claude-opus-4-8`. Each skill
