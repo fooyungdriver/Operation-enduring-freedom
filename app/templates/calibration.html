@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Calibration — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Printer calibration</h1>
+<p class="lede">Print the test pattern onto one pre-printed form, see how far off the
+markers are, then adjust the offsets until they line up with the boxes. Offsets
+are saved per document type and applied to every print.</p>
+
+<form class="inline" method="get">
+  <label>Document
+    <select name="doc_type" onchange="this.form.submit()">
+      <option value="manifest" {{ 'selected' if doc_type=='manifest' }}>Manifest (8700-22)</option>
+      <option value="ldr" {{ 'selected' if doc_type=='ldr' }}>LDR</option>
+    </select>
+  </label>
+</form>
+
+<form method="post">
+  <input type="hidden" name="doc_type" value="{{ doc_type }}">
+  <div class="grid4">
+    <label>X offset (chars)<input type="number" name="x_offset_chars" value="{{ offsets.x_offset_chars }}"></label>
+    <label>Y offset (lines)<input type="number" name="y_offset_lines" value="{{ offsets.y_offset_lines }}"></label>
+    <label>CPI<input type="number" name="cpi" value="{{ offsets.cpi }}"></label>
+    <label>LPI<input type="number" name="lpi" value="{{ offsets.lpi }}"></label>
+  </div>
+  <div class="actions">
+    <button class="btn" type="submit" name="action" value="save">Save offsets</button>
+    <button class="btn primary" type="submit" name="action" value="test">Print test pattern</button>
+  </div>
+</form>
+
+<h2>Test pattern preview</h2>
+<pre class="formpreview">{{ preview }}</pre>
+{% endblock %}

@@ -1,0 +1,32 @@
+{
+  "_comment": "Copy this file to config.json and fill in your real values. config.json is git-ignored and never committed. You can also set any of these via environment variables (same name, UPPERCASE) which take priority.",
+
+  "zoho": {
+    "_comment": "From your Zoho API console self-client. data_center is your Zoho domain: com (US), eu, in, com.au, jp.",
+    "client_id": "",
+    "client_secret": "",
+    "refresh_token": "",
+    "data_center": "com"
+  },
+
+  "anthropic": {
+    "_comment": "Anthropic API key for the in-app Claude skills. Get one at console.anthropic.com.",
+    "api_key": "",
+    "model": "claude-opus-4-8"
+  },
+
+  "printing": {
+    "_comment": "printer_name is the exact Windows printer name. On non-Windows dev machines, leave blank to write .prn files into the out/ folder instead. Calibration offsets shift ALL printed text on pre-printed forms; tune them from the Calibration screen.",
+    "manifest_printer_name": "",
+    "ldr_printer_name": "",
+    "calibration": {
+      "manifest": { "x_offset_chars": 0, "y_offset_lines": 0, "cpi": 10, "lpi": 6 },
+      "ldr": { "x_offset_chars": 0, "y_offset_lines": 0, "cpi": 10, "lpi": 6 }
+    }
+  },
+
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5000
+  }
+}

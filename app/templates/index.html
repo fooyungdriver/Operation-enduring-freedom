@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Red Arc Environmental — Ops Tool</h1>
+<p class="lede">Generators, waste profiles and lab pack inventory live in Zoho CRM.
+This tool reads them, prints manifests &amp; LDRs to the dot-matrix printer, and
+runs Claude-powered helpers.</p>
+
+<div class="cards">
+  <a class="card" href="{{ url_for('generators') }}">
+    <h2>Generators</h2><p>Browse generators and print manifests.</p>
+  </a>
+  <a class="card" href="{{ url_for('skill_profile_from_sds') }}">
+    <h2>Draft profile from SDS</h2><p>Paste an SDS → structured profile draft.</p>
+  </a>
+  <a class="card" href="{{ url_for('skill_waste_codes') }}">
+    <h2>Suggest waste codes</h2><p>Candidate EPA/state codes &amp; LDR subcategories.</p>
+  </a>
+  <a class="card" href="{{ url_for('calibration') }}">
+    <h2>Calibration</h2><p>Align overprint to your pre-printed forms.</p>
+  </a>
+</div>
+
+{% if not zoho_ready or not anthropic_ready %}
+<div class="flash warn">
+  Some integrations aren't configured yet.
+  Visit <a href="{{ url_for('settings') }}">Settings</a> to finish setup.
+</div>
+{% endif %}
+{% endblock %}

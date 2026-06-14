@@ -1,0 +1,28 @@
+# Secrets & local config — NEVER commit these
+config.json
+.env
+*.token
+tokens.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Generated print output / scratch
+out/
+*.prn

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Suggest waste codes — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Suggest waste codes</h1>
+<p class="lede">Describe the waste; Claude suggests candidate EPA/state codes and LDR
+subcategories with rationale and confidence. Verify before use.</p>
+
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+
+<form method="post">
+  <textarea name="facts" rows="8" placeholder="Waste facts: constituents, process, pH, flash point…">{{ facts }}</textarea>
+  <label>Generator state (optional)
+    <input type="text" name="state" value="{{ state }}" placeholder="e.g. TX">
+  </label>
+  <div class="actions"><button class="btn primary" type="submit">Suggest codes</button></div>
+</form>
+
+{% if result %}
+<h2>Suggested EPA codes</h2>
+<table>
+  <thead><tr><th>Code</th><th>Rationale</th><th>Confidence</th></tr></thead>
+  <tbody>
+  {% for c in result.epa_waste_codes %}
+    <tr><td>{{ c.code }}</td><td>{{ c.rationale }}</td><td>{{ c.confidence }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if result.state_waste_codes %}
+<h2>Suggested state codes</h2>
+<table>
+  <thead><tr><th>Code</th><th>Rationale</th><th>Confidence</th></tr></thead>
+  <tbody>
+  {% for c in result.state_waste_codes %}
+    <tr><td>{{ c.code }}</td><td>{{ c.rationale }}</td><td>{{ c.confidence }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if result.ldr_subcategories %}
+<h2>LDR subcategories</h2>
+<ul>{% for s in result.ldr_subcategories %}<li>{{ s }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% if result.caveats %}
+<div class="flash warn"><strong>Caveats:</strong>
+  <ul>{% for c in result.caveats %}<li>{{ c }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

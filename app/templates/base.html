@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Red Arc Ops Tool{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <a class="brand" href="{{ url_for('index') }}">Red Arc <span>Ops</span></a>
+    <nav>
+      <a href="{{ url_for('generators') }}">Generators</a>
+      <a href="{{ url_for('skill_profile_from_sds') }}">Profile from SDS</a>
+      <a href="{{ url_for('skill_waste_codes') }}">Waste codes</a>
+      <a href="{{ url_for('calibration') }}">Calibration</a>
+      <a href="{{ url_for('settings') }}">Settings</a>
+    </nav>
+    <div class="status">
+      <span class="badge {{ 'ok' if zoho_ready else 'off' }}">Zoho</span>
+      <span class="badge {{ 'ok' if anthropic_ready else 'off' }}">Claude</span>
+      <span class="badge {{ 'ok' if real_printing else 'warn' }}"
+            title="{{ 'Dot-matrix RAW printing available' if real_printing else 'No raw printer — printing to .prn files in out/' }}">Printer</span>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>
