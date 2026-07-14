@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ generator.Name if generator else 'Generator' }} — Red Arc Ops{% endblock %}
+{% block body %}
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+{% if generator %}
+<h1>{{ generator.Name }}</h1>
+<p><a href="{{ url_for('generators') }}">&larr; All generators</a></p>
+
+<div class="grid2">
+  <section>
+    <h2>Generator</h2>
+    <dl>
+      <dt>EPA ID</dt><dd>{{ generator.EPA_ID or '—' }}</dd>
+      <dt>State reg #</dt><dd>{{ generator.State_Registration_No or '—' }}</dd>
+      <dt>Status</dt><dd>{{ generator.Generator_Status or '—' }}</dd>
+      <dt>Site address</dt><dd>
+        {{ generator.Site_Address_Line_1 or '' }}
+        {{ generator.Site_City or '' }}
+        {{ generator.Site_State or '' }} {{ generator.Site_ZIP or '' }}</dd>
+    </dl>
+  </section>
+  <section>
+    <h2>Actions</h2>
+    <p><a class="btn primary" href="{{ url_for('print_manifest', gen_id=generator.id) }}">Print manifest</a></p>
+  </section>
+</div>
+
+<h2>Waste profiles</h2>
+{% if profiles %}
+<table>
+  <thead><tr><th>Profile</th><th>Waste codes</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for p in profiles %}
+    <tr>
+      <td>{{ p.Name }}</td>
+      <td>{{ p.EPA_Waste_Codes or p.Waste_Codes or '—' }}</td>
+      <td>{{ p.Status or '—' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No profiles linked to this generator yet.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

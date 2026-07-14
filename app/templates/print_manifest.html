@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Print manifest — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Print manifest</h1>
+<p><a href="{{ url_for('generator_detail', gen_id=generator.id) }}">&larr; {{ generator.Name }}</a></p>
+
+<form method="post" action="{{ url_for('print_manifest', gen_id=generator.id) }}">
+  <label>Manifest tracking number
+    <input type="text" name="tracking_number" value="{{ tracking_number }}">
+  </label>
+
+  <h2>Waste lines (select profiles)</h2>
+  {% if profiles %}
+  <ul class="checklist">
+    {% for p in profiles %}
+    <li>
+      <label><input type="checkbox" name="profile_ids" value="{{ p.id }}" checked>
+        {{ p.Name }} — {{ p.EPA_Waste_Codes or p.Waste_Codes or 'no codes' }}</label>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No profiles found for this generator; the manifest will print without waste lines.</p>
+  {% endif %}
+
+  <h2>Preview</h2>
+  <p class="hint">This is where text will land on the pre-printed form. Use
+    <a href="{{ url_for('calibration') }}">Calibration</a> to shift it into the boxes.</p>
+  <pre class="formpreview">{{ preview }}</pre>
+
+  <div class="actions">
+    <button class="btn primary" type="submit" name="action" value="print">Print to dot-matrix</button>
+  </div>
+  {% if not real_printing %}
+  <p class="hint">No raw printer on this machine — printing will write a <code>.prn</code>
+    file into <code>out/</code> instead.</p>
+  {% endif %}
+</form>
+{% endblock %}

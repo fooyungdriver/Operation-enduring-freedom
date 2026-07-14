@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Generators — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Generators</h1>
+
+<form class="search" method="get" action="{{ url_for('generators') }}">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search by name, EPA ID…">
+  <button type="submit">Search</button>
+  {% if q %}<a href="{{ url_for('generators') }}">Clear</a>{% endif %}
+</form>
+
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+
+{% if generators %}
+<table>
+  <thead><tr><th>Name</th><th>EPA ID</th><th>Site</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for g in generators %}
+    <tr>
+      <td><a href="{{ url_for('generator_detail', gen_id=g.id) }}">{{ g.Name }}</a></td>
+      <td>{{ g.EPA_ID or '—' }}</td>
+      <td>{{ g.Site_City or '' }}{% if g.Site_State %}, {{ g.Site_State }}{% endif %}</td>
+      <td>{{ g.Generator_Status or '—' }}</td>
+      <td><a class="btn" href="{{ url_for('print_manifest', gen_id=g.id) }}">Manifest</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% elif not error %}
+<p>No generators found.</p>
+{% endif %}
+{% endblock %}

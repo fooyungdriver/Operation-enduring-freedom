@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Settings — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Settings</h1>
+<p class="lede">Secrets (Zoho keys, Anthropic key) are read from <code>config.json</code>
+or environment variables and are never shown here. Edit <code>config.json</code> to
+change them, then restart the app.</p>
+
+<div class="grid2">
+  <section>
+    <h2>Status</h2>
+    <dl>
+      <dt>Zoho</dt><dd>{{ 'Configured' if zoho_ready else 'Not configured' }} (data center: {{ data_center }})</dd>
+      <dt>Claude</dt><dd>{{ 'Configured' if anthropic_ready else 'Not configured' }} (model: {{ model }})</dd>
+      <dt>Raw printing</dt><dd>{{ 'Available (Windows)' if real_printing else 'Unavailable — prints to .prn files in out/' }}</dd>
+    </dl>
+  </section>
+  <section>
+    <h2>Detected printers</h2>
+    {% if printers %}
+    <ul>{% for p in printers %}<li><code>{{ p }}</code></li>{% endfor %}</ul>
+    <p class="hint">Put the exact name into <code>printing.manifest_printer_name</code>
+      / <code>ldr_printer_name</code> in config.json.</p>
+    {% else %}
+    <p>None detected (only available on Windows).</p>
+    {% endif %}
+  </section>
+</div>
+
+<h2>Setup checklist</h2>
+<ol>
+  <li>Copy <code>config.example.json</code> to <code>config.json</code>.</li>
+  <li>Fill in Zoho <code>client_id</code>, <code>client_secret</code>, <code>refresh_token</code> (see README).</li>
+  <li>Add your Anthropic <code>api_key</code>.</li>
+  <li>Set the printer names, then use <a href="{{ url_for('calibration') }}">Calibration</a>.</li>
+</ol>
+{% endblock %}

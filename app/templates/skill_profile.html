@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Draft profile from SDS — Red Arc Ops{% endblock %}
+{% block body %}
+<h1>Draft a waste profile from an SDS</h1>
+<p class="lede">Paste an SDS or waste description. Claude returns a structured draft
+for you to review and verify — it is decision support, not a determination.</p>
+
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+
+<form method="post">
+  <textarea name="text" rows="14" placeholder="Paste SDS text or a waste description…">{{ text }}</textarea>
+  <div class="actions"><button class="btn primary" type="submit">Draft profile</button></div>
+</form>
+
+{% if result %}
+<h2>Draft (verify before saving to Zoho)</h2>
+{% if result.needs_review %}
+<div class="flash warn"><strong>Needs review:</strong> {{ result.needs_review | join(', ') }}</div>
+{% endif %}
+<pre class="formpreview">{{ result | tojson(indent=2) }}</pre>
+{% endif %}
+{% endblock %}
