@@ -44,6 +44,10 @@ process codes (Zak). They gate slices 2 and 4.
 | **Contact** | People | — | Account-wide roles multi-select per RE spec §3 |
 | **Regulated Entity** | Sites: generator, transporter, transfer yard, destination facility | Site Contacts (contact, roles) · 3rd-Party LTL Rates (billing unit, rate) — destination facilities only | Fields exactly per `regulated-entities-spec-v1.md`. Destination facilities add Delivery Method + Hub. |
 | **Opportunity** | Sales pipeline | — | Stages: Identified → Technical Review → Estimate Created → Secondary Review → Closed Won / Closed Lost. Relates to an Account (any type) and optionally one Job. |
+| **Activity** | One call, email, meeting or site visit | Tags (many-to-many to a Tag table) | One table, `type` picks the status set (§2). Account required; Contact, Opportunity, Job, Regulated Entity optional. Owner, scheduled/completed times, outcome notes. Timeline on every record it links to. |
+| **Cadence** | A step-by-step outreach process | Cadence Steps (order, day offset, activity type, template) | Target type (prospect / customer), active flag |
+| **Cadence Enrollment** | One account or contact running one cadence | — | Started, current step, status Active / Paused / Completed / Exited + reason |
+| **Template** | Email body or call script with merge fields | — | Referenced by Cadence Steps; reusable across cadences |
 
 ### Libraries (reference data, admin-edited, seeded from public sources)
 
@@ -103,6 +107,39 @@ process codes (Zak). They gate slices 2 and 4.
 - Creating an Opportunity on a prospect Account sets stage = Opportunity Identified; moving the Opportunity to Technical Review or later sets Qualified.
 - Opportunity Closed Won on a prospect prompts conversion: type → Customer, customer-required fields enforced, main contact gets the Main role on account and generator site.
 - Knowsys CSV/XLSX import creates prospect Accounts (name + source only required).
+
+### Activities
+
+Status set by type:
+
+| Type | Statuses |
+|---|---|
+| Call | Scheduled → Completed · No Answer · Voicemail |
+| Site Visit | Scheduled → Contact Made · No Contact Made · Decision Maker Identified |
+| Email | Sent (Opened later, if open tracking is ever added) |
+| Meeting | Scheduled → Completed · No Show · Cancelled |
+
+- Completing a Site Visit with outcome Decision Maker Identified advances the
+  Account's `prospect_stage` to Decision Maker Identified if it is lower. The
+  activity drives the stage; nobody updates both by hand.
+- Logging on the go: a quick "log activity" action on Account, Contact and
+  Opportunity pages, sized for a phone. Tapping a contact's phone number opens
+  the dialer **and** creates a Scheduled Call activity; the page asks for the
+  outcome on return. A web app cannot detect that a call happened, so this is
+  the honest version of "calls initiated in-app get logged automatically".
+- Emails sent from the app log an Email activity automatically once email
+  integration lands (phase 2). Until then, Email activities are logged by hand.
+- Tags are an admin-managed list, not free text, so reports can group on them.
+
+### Cadences
+
+- Enrolling an account or contact creates the step-1 Activity on its due date.
+  Completing a step's Activity creates the next one. Exiting (closed won, do not
+  contact, etc.) cancels the open Activity and records the reason.
+- A **Today** view lists the owner's due and overdue activities across all
+  enrollments, with the step's template or script inline.
+- Phase 1: tracking plus templates/scripts. Phase 2: Email steps send
+  automatically; exit rules fire on Opportunity stage changes.
 
 ### Opportunity ↔ Job
 
@@ -193,7 +230,8 @@ freight  = destination's 3rd-party LTL rate when delivery = LTL via hub (+ trans
 ```
 redarc/
   core/       users, roles, audit log, sequences, global search, file storage
-  crm/        accounts, contacts, regulated entities, opportunities, knowsys import
+  crm/        accounts, contacts, regulated entities, opportunities, activities,
+              cadences, templates, knowsys import
   library/    reference tables + seed loaders
   waste/      profiles, tsdf approvals, lab pack inventories
   pricing/    container types, vendor price lines, service items, waste categories, engine
@@ -214,15 +252,15 @@ Each slice is usable before the next starts.
 
 | # | Slice | Done when |
 |---|---|---|
-| 1 | **Foundation** — auth, roles, audit, sequences, Accounts / Contacts / Regulated Entities, libraries seeded, Zoho data migrated, global search | Staff can look up any account/site/contact; Zoho CRM modules can be retired |
+| 1 | **Foundation** — auth, roles, audit, sequences, Accounts / Contacts / Regulated Entities, Activities (all four types, quick-log on mobile), libraries seeded, Zoho data migrated, global search | Staff can look up any account/site/contact and log a call or visit against it; Zoho CRM modules can be retired |
 | 2 | **Cost + pricing** — Container Types, Vendor Price Lines, Vendor Fees, LTL Rates, Contract Prices, Service Items, engine | Calculator acceptance test passes to the cent |
 | 3 | **Profiles, approvals, lab packs** — plus lab-pack-sorter import | A chemist can take a stream from Draft to Approved and build a lab pack |
 | 4 | **Jobs + estimates** — all job types, stage machine, waste/service lines, estimate PDF, price-review gate | A rep can quote and a job can reach Ready to Schedule |
 | 5 | **Shipping documents + containers** — HW manifest, non-haz manifest, BOL, LDR, labels, calibration, QC1/QC2 | A job can be shipped, printed, reconciled and locked |
 | 6 | **Invoices** — ready-to-bill list, invoice PDF, shipping-docs hold, contract-rate warnings | Michaela bills from the app |
-| 7 | **Sales pipeline** — prospect stages, opportunities, Knowsys import, mobile views | Sales works from a phone |
+| 7 | **Sales pipeline** — prospect stages, opportunities, cadences + templates, Today view, Knowsys import, mobile views | Sales works from a phone |
 
-**Phase 2+:** shipping-document email send logic (RE spec §3), Claude assists (account form fill, SDS → profile, code suggestions), QuickBooks sync, RCRAInfo e-Manifest, Projects, annual waste summary, revenue projection, 10-day yard inventory, outbound loads, commission reporting.
+**Phase 2+:** email integration (send from the app, auto-log Email activities, shared email threads on records, shipping-document send logic per RE spec §3), cadence email automation, Claude assists (account form fill, SDS → profile, code suggestions), QuickBooks sync, RCRAInfo e-Manifest, Projects, annual waste summary, revenue projection, 10-day yard inventory, outbound loads, commission reporting.
 
 ---
 
@@ -241,6 +279,9 @@ Each slice is usable before the next starts.
 | 2026-10-08 | Containers generate from Shipping Document lines, not Job waste lines (wish list over v2) |
 | 2026-10-08 | Browser printing of generated PDFs replaces the local print agent; ESC/P engine kept as fallback |
 | 2026-10-08 | Invoices are a module with PDF output transcribed into QB; QB API sync is phase 2 |
+| 2026-10-10 | Activities: one table with type-specific statuses; in slice 1 because ops logs calls and visits too |
+| 2026-10-10 | Site Visit outcome "Decision Maker Identified" advances prospect stage; no manual double entry |
+| 2026-10-10 | Cadences + Templates in slice 7 (tracking and scripts); automated email steps phase 2 |
 
 ---
 
@@ -255,4 +296,7 @@ Each slice is usable before the next starts.
 - [ ] User list with roles; backup QC reviewer per role
 - [ ] 3–5 real past jobs as end-to-end test cases (lab pack, bulk, LTL via hub, one with a pricing exception, one field service)
 - [ ] Exemption and exclusion lists
+- [ ] Activity tag list; Meeting statuses (proposed: Completed / No Show / Cancelled) to confirm
+- [ ] First cadence(s) to seed: steps, offsets, scripts
+- [ ] Updated waste type / treatment mapping in the project folder — Zak reviewing; do not use until released
 - [ ] Environment setup checklist (Google Cloud, DNS, GitHub, Claude environment) — in chat 2026-10-08, to be moved here
